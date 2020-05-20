@@ -5,11 +5,8 @@ return unless $m->request_comp->path =~ /Ticket\/Display.html/
     && $DECODED_ARGS->{id}
     && $TicketObj->Load( $DECODED_ARGS->{id} );
 
-my $QueueObj = RT::Queue->new( $session{CurrentUser} );
-next unless $QueueObj->Load( $TicketObj->QueueObj->Name );
-
 PageMenu()->child(
-    $Queue => title => loc("Request File"),
+    actions => title => loc("Request File"),
     path => ""
 );
 </%INIT>
