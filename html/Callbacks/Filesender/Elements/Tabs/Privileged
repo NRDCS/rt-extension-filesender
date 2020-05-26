@@ -1,17 +1,17 @@
 <%INIT>
-my $TicketObj = RT::Ticket->new( $session{CurrentUser} );
+my $TicketObj = RT::Ticket->new($session{CurrentUser});
 
 return unless $m->request_comp->path =~ /Ticket\/Display.html/
     && $DECODED_ARGS->{id}
     && $TicketObj->Load( $DECODED_ARGS->{id} );
 
-for my $Queue ( RT->Config->Get( 'FilesenderAwareQueues' ) ) {
-    my $QueueObj = RT::Queue->new( $session{CurrentUser} );
-    next unless $QueueObj->Load( $Queue );
+my @Queues = RT->Config->Get('FilesenderAwareQueues');
+my %QueuesHash = map { $_ => 1 } @Queues;
 
-    PageMenu()->child(
-         $Queue => title => loc("Request File"),
-         path => "",
-    );
-}
+return unless $QueuesHash{$TicketObj->QueueObj->Name};
+
+PageMenu()->child(
+    $TicketObj->QueueObj->Name => title => loc("Request File"),
+    path => "/Ticket/Display.html?id=" . $TicketObj->Id . "&request_file=1",
+);
 </%INIT>

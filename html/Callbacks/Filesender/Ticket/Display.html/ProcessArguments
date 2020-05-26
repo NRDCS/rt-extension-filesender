@@ -1,0 +1,126 @@
+<%ARGS>
+$Ticket  => undef,
+$ARGSRef => {}
+@Actions => ()
+</%ARGS>
+<%INIT>
+use strict;
+use warnings;
+
+use JSON;
+use LWP::UserAgent;
+use Digest::SHA qw(hmac_sha1_hex);
+use URI::Split qw(uri_split uri_join);
+
+return unless $ARGSRef->{request_file};
+
+my $article = RT::Article->new(RT->SystemUser);
+
+unless ($article->Load(RT->Config->Get('FilesenderMessageArticleId'))) {
+    RT::Logger->error("Failed loading Article by FilesenderMessageArticleId");
+    return;
+}
+
+my $message = $article->FirstCustomFieldValue('Content');
+
+my $id = create_transfer(
+    $Ticket->QueueObj->CommentAddress,
+    $Ticket->RequestorAddresses,
+    $Ticket->Subject,
+    $message
+);
+
+return unless $id;
+
+RT::Logger->info(
+    sprintf("File request created for ticket #%d (guest ID: %d)", $Ticket->Id, $id)
+);
+
+$Ticket->Comment(Content => sprintf(
+    "File request sent\nFrom: %s\nTo: %s\nSubject: %s\n\nContent: %s",
+    $Ticket->QueueObj->CommentAddress,
+    $Ticket->RequestorAddresses,
+    $Ticket->Subject,
+    $message)
+);
+
+
+sub create_transfer {
+    my ($from, $to, $subject, $message) = @_;
+
+    my %options = ('get_a_link' => 0);
+    my %data    = (
+        subject    => $subject,
+        from       => $from,
+        message    => $message,
+        recipient  => $to,
+        options    => \%options
+    );
+
+    my $timestamp = time();
+    my $api_url   = RT->Config->Get('FilesenderApiUrl');
+
+    my %query_params = (
+        remote_application => RT->Config->Get('FilesenderRemoteApplication'),
+        timestamp          => $timestamp
+    );
+
+    my $signable_url = sprintf("%s/guest", $api_url);
+    $signable_url =~ s!^https?://!!i;
+
+    my $to_sign = sprintf("post&%s?%s&%s", $signable_url, build_query_string(%query_params), encode_json(\%data));
+
+    $query_params{signature} = hmac_sha1_hex($to_sign, RT->Config->Get('FilesenderSecret'));
+
+    my $url = sprintf("%s/guest", $api_url);
+
+    RT::Logger->info(
+        sprintf("[Filesender]: sending request to %s", $url .  '?' . build_query_string(%query_params))
+    );
+
+    my $client = build_http_client();
+
+    my $response = $client->post(
+        $url .  '?' . build_query_string(%query_params),
+        Content      => encode_json(\%data),
+        Content_Type => 'application/json'
+    );
+
+    unless ($response->is_success) {
+        RT::Logger->error(sprintf("[Filesender]: %s", $response->content));
+
+        return undef;
+    }
+
+    my $response_data = decode_json($response->content);
+
+    return $response_data->{id};
+}
+
+sub build_http_client {
+    {
+        my  $client = LWP::UserAgent->new;
+
+        if (RT->Config->Get('DevelMode')) {
+            $client->ssl_opts(
+                SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE,
+                verify_hostname => 0
+             );
+        }
+
+        return $client;
+    }
+}
+
+sub build_query_string {
+    my %params = @_;
+
+    my @query;
+
+    foreach my $key (sort keys %params) {
+        push @query, sprintf("%s=%s", $key, $params{$key});
+    }
+
+    return join('&', @query);
+}
+</%INIT>
