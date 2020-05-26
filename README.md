@@ -1,18 +1,20 @@
 NAME
+    
     RT-Extension-Filesender - RT modifications for Filesender integration
 
 RT VERSION
+    
     Works with RT > 4.2.0
 
 INSTALLATION
+
     perl Makefile.PL
     make
     make install
     
     May need root permissions
 
-    Edit your /opt/rt4/etc/RT_SiteConfig.pm
-        Add this line:
+    Edit your /opt/rt4/etc/RT_SiteConfig.pm, add this line:
 
             Plugin('RT::Extension::Filesender');
 
@@ -22,6 +24,7 @@ INSTALLATION
     Restart your webserver
 
 CONFIGURATION
+
     Add to `/opt/rt4/etc/RT_SiteConfig.pm`:
     
     Set(@FilesenderAwareQueues, qw(Queue1 Queue2));
