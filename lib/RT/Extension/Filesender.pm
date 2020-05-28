@@ -10,14 +10,11 @@ RT-Extension-Filesender - [One line description of module's purpose here]
 
 =head1 DESCRIPTION
 
-[Why would someone install this extension? What does it do? What problem
-does it solve?]
+Filesender integration to Request Tracker
 
 =head1 RT VERSION
 
-Works with RT [What versions of RT is this known to work with?]
-
-[Make sure to use requires_rt and rt_too_new in Makefile.PL]
+Works with RT > 4.2.0
 
 =head1 INSTALLATION
 
@@ -47,18 +44,7 @@ Add this line:
 
 =head1 AUTHOR
 
-Best Practical Solutions, LLC E<lt>modules@bestpractical.comE<gt>
-
-=for html <p>All bugs should be reported via email to <a
-href="mailto:bug-RT-Extension-Filesender@rt.cpan.org">bug-RT-Extension-Filesender@rt.cpan.org</a>
-or via the web at <a
-href="http://rt.cpan.org/Public/Dist/Display.html?Name=RT-Extension-Filesender">rt.cpan.org</a>.</p>
-
-=for text
-    All bugs should be reported via email to
-        bug-RT-Extension-Filesender@rt.cpan.org
-    or via the web at
-        http://rt.cpan.org/Public/Dist/Display.html?Name=RT-Extension-Filesender
+Andrius Kulbis <lt>andrius.kulbis@gmail.com<gt>
 
 =head1 LICENSE AND COPYRIGHT
 

@@ -3,13 +3,10 @@ NAME
     here]
 
 DESCRIPTION
-    [Why would someone install this extension? What does it do? What problem
-    does it solve?]
+    Filesender integration to Request Tracker
 
 RT VERSION
-    Works with RT [What versions of RT is this known to work with?]
-
-    [Make sure to use requires_rt and rt_too_new in Makefile.PL]
+    Works with RT > 4.2.0
 
 INSTALLATION
     perl Makefile.PL
@@ -28,12 +25,8 @@ INSTALLATION
     Restart your webserver
 
 AUTHOR
-    Best Practical Solutions, LLC <modules@bestpractical.com>
+    Andrius Kulbis <lt>andrius.kulbis@gmail.com<gt>
 
-    All bugs should be reported via email to
-        bug-RT-Extension-Filesender@rt.cpan.org
-    or via the web at
-        http://rt.cpan.org/Public/Dist/Display.html?Name=RT-Extension-Filesender
 LICENSE AND COPYRIGHT
     This software is Copyright (c) 2020 by Andrius Kulbis
 

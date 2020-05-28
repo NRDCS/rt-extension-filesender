@@ -14,6 +14,11 @@ use URI::Split qw(uri_split uri_join);
 
 return unless $ARGSRef->{request_file};
 
+unless ($Ticket->QueueObj->CommentAddress) {
+    RT::Logger->error("Ticket Queue does not have Comment Address set. Stopping file request...");
+    return;
+}
+
 my $article = RT::Article->new(RT->SystemUser);
 
 unless ($article->Load(RT->Config->Get('FilesenderMessageArticleId'))) {
@@ -23,29 +28,41 @@ unless ($article->Load(RT->Config->Get('FilesenderMessageArticleId'))) {
 
 my $message = $article->FirstCustomFieldValue('Content');
 
-my $id = create_transfer(
-    $Ticket->QueueObj->CommentAddress,
-    $Ticket->RequestorAddresses,
-    $Ticket->Subject,
-    $message
-);
-
-return unless $id;
-
-RT::Logger->info(
-    sprintf("File request created for ticket #%d (guest ID: %d)", $Ticket->Id, $id)
-);
-
-$Ticket->Comment(Content => sprintf(
-    "File request sent\nFrom: %s\nTo: %s\nSubject: %s\n\nContent: %s",
-    $Ticket->QueueObj->CommentAddress,
-    $Ticket->RequestorAddresses,
-    $Ticket->Subject,
-    $message)
+my @requestors = sort(
+    map {
+        s/^\s+//;  # strip leading spaces
+        s/\s+$//;  # strip trailing spaces
+        $_         # return the modified string
+    }
+    split ',', $Ticket->RequestorAddresses
 );
 
 
-sub create_transfer {
+for my $requestor (@requestors) {
+    my $id = create_guest(
+        $Ticket->QueueObj->CommentAddress,
+        $requestor,
+        $Ticket->Subject,
+        $message
+    );
+
+    next unless $id;
+
+    RT::Logger->info(
+        sprintf("File request created for ticket #%d requestor %s (guest ID: %d)", $Ticket->Id, $requestor, $id)
+    );
+
+    $Ticket->Comment(Content => sprintf(
+        "File request sent\nFrom: %s\nTo: %s\nSubject: %s\n\nContent: %s",
+        $Ticket->QueueObj->CommentAddress,
+        $requestor,
+        $Ticket->Subject,
+        $message)
+    );
+}
+
+
+sub create_guest {
     my ($from, $to, $subject, $message) = @_;
 
     my %options = ('get_a_link' => 0);
