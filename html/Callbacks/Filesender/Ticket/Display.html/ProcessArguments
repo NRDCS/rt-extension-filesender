@@ -66,7 +66,7 @@ for my $requestor (@requestors) {
 sub create_guest {
     my ($from, $to, $subject, $message) = @_;
 
-    my %options = ('get_a_link' => 0);
+    my %options = ('get_a_link' => 0, 'add_me_to_recipients' => 1);
     my %data    = (
         subject    => $subject,
         from       => $from,
