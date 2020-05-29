@@ -32,3 +32,7 @@ CONFIGURATION
     Set($FilesenderApiUrl, "https://<file-sender-domain>/rest.php");
     Set($FilesenderRemoteApplication, "request_tracker");
     Set($FilesenderSecret, "<secret-in-filesender-config>");
+    
+    Optional:
+    
+    Set($FilesenderSkipSSLVerification, 1);

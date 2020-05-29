@@ -11,6 +11,7 @@ use JSON;
 use LWP::UserAgent;
 use Digest::SHA qw(hmac_sha1_hex);
 use URI::Split qw(uri_split uri_join);
+use IO::Socket::SSL;
 
 return unless $ARGSRef->{request_file};
 
@@ -118,7 +119,7 @@ sub build_http_client {
     {
         my  $client = LWP::UserAgent->new;
 
-        if (RT->Config->Get('DevelMode')) {
+        if (RT->Config->Get('FilesenderSkipSSLVerification')) {
             $client->ssl_opts(
                 SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE,
                 verify_hostname => 0
