@@ -66,13 +66,33 @@ for my $requestor (@requestors) {
 sub create_guest {
     my ($from, $to, $subject, $message) = @_;
 
-    my %options = ('get_a_link' => 0, 'add_me_to_recipients' => 1);
+    my %options = (
+        'email_upload_started' => 0,
+        'email_upload_page_access' => 0,
+        'valid_only_one_time' => 1,
+        'does_not_expire' => 0,
+        'can_only_send_to_me' => 1,
+        'email_guest_created' => 1,
+        'email_guest_created_receipt' => 1,
+        'email_guest_expired' => 1
+    );
+    my %transfer_options = (
+        'email_me_copies' => 0,
+        'email_me_on_expire' => 1,
+        'email_upload_complete' => 0,
+        'email_download_complete' => 0,
+        'email_daily_statistics' => 0,
+        'add_me_to_recipients' => 0,
+        'get_a_link' => 0
+    );
+
     my %data    = (
         subject    => $subject,
         from       => $from,
         message    => $message,
         recipient  => $to,
-        options    => \%options
+        options    => \%options,
+        transfer_options => \%transfer_options
     );
 
     my $timestamp = time();
