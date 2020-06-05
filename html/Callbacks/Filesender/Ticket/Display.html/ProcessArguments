@@ -38,12 +38,18 @@ my @requestors = sort(
     split ',', $Ticket->RequestorAddresses
 );
 
+my $tag = $Ticket->QueueObj->SubjectTag;
+if ($tag eq "") {
+    $tag = RT->Config->Get('rtname');
+}
 
 for my $requestor (@requestors) {
+    my $subject = sprintf("[%s #%d] %s", $tag, $Ticket->Id, $Ticket->Subject);
+
     my $id = create_guest(
         $Ticket->QueueObj->CommentAddress,
         $requestor,
-        $Ticket->Subject,
+        $subject,
         $message
     );
 
@@ -57,7 +63,7 @@ for my $requestor (@requestors) {
         "File request sent\nFrom: %s\nTo: %s\nSubject: %s\n\nContent: %s",
         $Ticket->QueueObj->CommentAddress,
         $requestor,
-        $Ticket->Subject,
+        $subject,
         $message)
     );
 }

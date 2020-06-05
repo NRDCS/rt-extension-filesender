@@ -10,7 +10,9 @@ my %QueuesHash = map { $_ => 1 } @Queues;
 
 return unless $QueuesHash{$TicketObj->QueueObj->Name};
 
-PageMenu()->child(
+my $actions = PageMenu()->child("actions");
+
+$actions->child(
     $TicketObj->QueueObj->Name => title => loc("Request File"),
     path => "/Ticket/Display.html?id=" . $TicketObj->Id . "&request_file=1",
 );
