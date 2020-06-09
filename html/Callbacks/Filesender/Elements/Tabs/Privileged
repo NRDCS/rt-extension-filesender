@@ -1,19 +1,28 @@
 <%INIT>
 my $TicketObj = RT::Ticket->new($session{CurrentUser});
 
-return unless $m->request_comp->path =~ /Ticket\/Display.html/
+return unless (
+        $m->request_comp->path =~ /Ticket\/Display.html/
+        || $m->request_comp->path =~ /RTIR\/Incident\/Display.html/
+        || $m->request_comp->path =~ /RTIR\/Display.html/
+    )
     && $DECODED_ARGS->{id}
     && $TicketObj->Load( $DECODED_ARGS->{id} );
+
+return unless $TicketObj->CurrentUserHasRight('ModifyTicket');
 
 my @Queues = RT->Config->Get('FilesenderAwareQueues');
 my %QueuesHash = map { $_ => 1 } @Queues;
 
-return unless $QueuesHash{$TicketObj->QueueObj->Name};
+return unless $QueuesHash{$TicketObj->QueueObj->Name}
+    || RT::IR->IsIncidentQueue($TicketObj->QueueObj)
+    || RT::IR->IsInvestigationQueue($TicketObj->QueueObj)
+    || RT::IR->IsReportQueue($TicketObj->QueueObj);
 
 my $actions = PageMenu()->child("actions");
 
 $actions->child(
     $TicketObj->QueueObj->Name => title => loc("Request File"),
-    path => "/Ticket/Display.html?id=" . $TicketObj->Id . "&request_file=1",
+    path => $m->request_comp->path . "?id=" . $TicketObj->Id . "&request_file=1",
 );
 </%INIT>
