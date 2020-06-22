@@ -44,6 +44,13 @@ if ($Ticket->RequestorAddresses) {
    @requestors = ($Ticket->OwnerObj->EmailAddress);
 }
 
+my $requestors_count = scalar @requestors;
+
+unless ($requestors_count > 0) {
+    RT::Logger->error("No requestors to send file request to");
+    return;
+}
+
 my $tag = $Ticket->QueueObj->SubjectTag;
 if ($tag eq "") {
     $tag = RT->Config->Get('rtname');
