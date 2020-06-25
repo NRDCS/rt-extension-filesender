@@ -19,6 +19,10 @@ no_index:
     - html
     - inc
 requires:
+  Digest::SHA: 0
+  JSON: 0
+  LWP::UserAgent: 0
+  URI::Split: 0
   perl: 5.10.1
 resources:
   license: http://opensource.org/licenses/gpl-license.php
