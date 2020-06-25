@@ -14,6 +14,7 @@ use URI::Split qw(uri_split uri_join);
 use IO::Socket::SSL;
 
 return unless $ARGSRef->{request_file};
+return unless $Ticket->CurrentUserHasRight('ModifyTicket');
 
 unless ($Ticket->QueueObj->CommentAddress) {
     RT::Logger->error("Ticket Queue does not have Comment Address set. Stopping file request...");
@@ -51,7 +52,7 @@ unless ($requestors_count > 0) {
     return;
 }
 
-my $tag = $Ticket->QueueObj->SubjectTag;
+my $tag = $Ticket->QueueObj->SubjectTag || "";
 if ($tag eq "") {
     $tag = RT->Config->Get('rtname');
 }
